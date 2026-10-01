@@ -36,11 +36,11 @@ def loss(X, Y):
         + (1 - Y) * np.log(1 - predictions)
   )
 
-def predict_class(X):
-
+def predict_class(X, threshold=0.5):
     probability = predict_probability(X)
 
-    return (probability >= 0.7).astype(int)
+    return (probability >= threshold).astype(int)
+
 
 
 for i in range(iterations):
@@ -56,6 +56,62 @@ for i in range(iterations):
     w = w - learning_rate * dw
 
     b = b - learning_rate * db
+
+def confusion_matrix(Y, predictions):
+    TP = np.sum((Y == 1) & (predictions == 1))
+    TN = np.sum((Y == 0) & (predictions == 0))
+    FP = np.sum((Y == 0) & (predictions == 1))
+    FN = np.sum((Y == 1) & (predictions == 0))
+
+    return TP, TN, FP, FN
+
+def accuracy(Y, predictions):
+    TP, TN, FP, FN = confusion_matrix(Y, predictions)
+
+    return (TP + TN) / (TP + TN + FP + FN)
+
+def precision(Y, predictions):
+    TP, TN, FP, FN = confusion_matrix(Y, predictions)
+
+    return TP / (TP + FP)
+
+def recall(Y, predictions):
+    TP, TN, FP, FN = confusion_matrix(Y, predictions)
+
+    return TP / (TP + FN)
+
+def f1_score(Y, predictions):
+    p = precision(Y, predictions)
+    r = recall(Y, predictions)
+
+    return 2 * (p * r) / (p + r)
+
+
+
+predictions_03 = predict_class(X, 0.3)
+predictions_05 = predict_class(X, 0.5)
+predictions_07 = predict_class(X, 0.7)
+
+print("Threshold 0.3:", predictions_03)
+print("Threshold 0.5:", predictions_05)
+print("Threshold 0.7:", predictions_07)
+
+
+
+predictions = predict_class(X,0.3)
+
+print("Accuracy =", accuracy(Y, predictions))
+print("Precision =", precision(Y, predictions))
+print("Recall =", recall(Y, predictions))
+print("F1 =", f1_score(Y, predictions))
+
+
+TP, TN, FP, FN = confusion_matrix(Y, predictions)
+
+print("TP =", TP)
+print("TN =", TN)
+print("FP =", FP)
+print("FN =", FN)
 
 
 print("w =", w)
